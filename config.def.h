@@ -6,7 +6,7 @@
 
 /* appearance */
 static unsigned int borderpx          = 2;  /* border pixel of windows */
-static unsigned int snap              = 32; /* snap pixel */
+static unsigned int snap              = 10; /* snap pixel */
 static unsigned int gappih            = 20; /* 10 horiz inner gap between windows */
 static unsigned int gappiv            = 40; /* 10 vert inner gap between windows */
 static unsigned int gappoh            = 37; /* 16 horiz outer gap between windows and screen edge */
@@ -20,7 +20,7 @@ static int systraypinningfailfirst    = 1;  /* 1: systray on the first monitor, 
 static int showsystray                = 1;  /* 0 means no systray */
 static int showbar                    = 1;  /* 0 means no bar */
 static int topbar                     = 0;  /* 0 means bottom bar */
-static int user_bh                    = 22; /* 0 - default     | 20, 22, 25, 27 */
+static int user_bh                    = 22; /* 0 - default or 20, 22, */
 static char *fonts[] = {
   "GoMono Nerd Font:size=10:antialias=true:autohint=true",              // text               | 9,  10, 12
   "JoyPixels:style=Regular:pixelsize=12:antialias=true:autohint=true",  // emoji              | 12, 13, 16
@@ -62,13 +62,19 @@ static const Rule rules[] = {
 	{ TERMCLASS,      NULL,           NULL,       	   0,           0,           1,          0,         -1 },
 	{ NULL,           NULL,           "Event Tester",  0,           0,           0,          1,         -1 },
   { NULL,           "scratchterm",  NULL,            0,           1,           1,          0,         -1 },
+  { NULL,           "scratchemail", NULL,            0,           1,           1,          0,         -1 },
   { NULL,           "scratchcalc",  NULL,            0,           1,           1,          0,         -1 },
-  { "Alacritty",    NULL,           "Neomutt",       0,           1,           1,          0,         -1 },
+  { NULL,           "scratchlf",    NULL,            0,           1,           1,          0,         -1 },
+  { NULL,           "scratchupd",   NULL,            0,           1,           1,          0,         -1 },
+  { NULL,           "scratchtmp",   NULL,            0,           1,           1,          0,         -1 },
+  { "Alacritty",    "Alacritty",    "Neomutt",       0,           1,           1,          0,         -1 },
   { "Nitrogen",     NULL,           NULL,            0,           1,           0,          0,         -1 },
   { "MEGAsync",     NULL,           NULL,            0,           1,           0,          0,         -1 },
   { "qBittorrent",  NULL,           NULL,            0,           1,           0,          0,         -1 },
   { "Tor Browser",  NULL,           NULL,            0,           1,           0,          0,         -1 },
   { "Xarchiver",    NULL,           NULL,            0,           1,           0,          0,         -1 },
+  { "ckb-next",     NULL,           NULL,            0,           1,           0,          0,         -1 },
+  //{ "mpv",          NULL,           NULL,            0,           1,           0,          0,         -1 },
 };
 
 /* layout(s) */
@@ -83,12 +89,12 @@ static const Layout layouts[] = {
 	{ "[]=",	tile },                   // 0: Default: Master on left, slaves on right
 	{ "TTT",	bstack },                 // 1: Master on top, slaves on bottom
 	{ "[M]",	monocle },                // 2: All windows on top of eachother
-	{ "><>",	NULL },			              // 3: no layout function means floating behavior
-  { "[D]",	deck },                   // 4: Master on left, slaves in monocle-like mode on right
-  { "|M|",	centeredmaster },		      // 5: Master in middle, slaves on sides
-  { ">M>",	centeredfloatingmaster },	// 6: Same but master floats
-  { "[@]",	spiral },                 // 7: Fibonacci spiral
-  { "[\\]",	dwindle },                // 8: Decreasing in size right and leftward
+  { "[D]",	deck },                   // 3: Master on left, slaves in monocle-like mode on right
+  { "|M|",	centeredmaster },		      // 4: Master in middle, slaves on sides
+  { ">M>",	centeredfloatingmaster },	// 5: Same but master floats
+  { "[@]",	spiral },                 // 6: Fibonacci spiral
+  { "[\\]",	dwindle },                // 7: Decreasing in size right and leftward
+	{ "><>",	NULL },			              // 8: no layout function means floating behavior
 	{ NULL,		NULL },
 };
 
@@ -109,8 +115,8 @@ static const Layout layouts[] = {
 
 /* commands */
 static const char *termcmd[]  = { TERMINAL, NULL };
-static const char *layoutmenu_cmd = "layoutmenu.sh";
-static const char *appmenu_cmd = "appmenu.sh"; 
+static const char *layoutmenu_cmd = "xmenu_layouts";
+static const char *appmenu_cmd = "xmenu_app-buttons"; 
 
 typedef struct {
 	const char *name;
@@ -118,12 +124,20 @@ typedef struct {
 } Sp;
 // alacritty
 const char *spcmd1[] = { TERMINAL, "--class", "scratchterm", "-t", "Alacritty - Scratchpad Terminal", "-o", "window.dimensions.columns=120", "-o", "window.dimensions.lines=32", "-o", "window.opacity=0.86", NULL };
-const char *spcmd2[] = { TERMINAL, "--class", "scratchcalc", "-t", "Alacritty - Scratchpad Calculator", "-o", "font.size=24.0", "-o", "window.dimensions.columns=22", "-o", "window.dimensions.lines=10", "-o", "window.opacity=0.86", "-e", "bc", "-lq", NULL };
+const char *spcmd2[] = { TERMINAL, "--class", "scratchemail", "-t", "Neomutt", "-o", "window.dimensions.columns=120", "-o", "window.dimensions.lines=32", "-e", "neomutt", NULL };
+const char *spcmd3[] = { TERMINAL, "--class", "scratchcalc", "-t", "Alacritty - Scratchpad Calculator", "-o", "font.size=24.0", "-o", "window.dimensions.columns=22", "-o", "window.dimensions.lines=10", "-o", "window.opacity=0.86", "-e", "bc", "-lq", NULL };
+const char *spcmd4[] = { TERMINAL, "--class", "scratchlf", "-o", "window.dimensions.columns=120", "-o", "window.dimensions.lines=32", "-o", "window.opacity=0.86", "-e", "lf", NULL };
+const char *spcmd5[] = { TERMINAL, "--class", "scratchupd", "-t", "Update System", "-o", "window.dimensions.columns=120", "-o", "window.dimensions.lines=32", "-o", "window.opacity=0.86", "-e", "yay", "-Syu", NULL };
+const char *spcmd6[] = { TERMINAL, "--class", "scratchtmp", "-t", "Temp File", "-o", "window.dimensions.columns=120", "-o", "window.dimensions.lines=32", "-o", "window.opacity=0.86", "-e", "nvim", "~/.tmp_file", NULL };
 
 static Sp scratchpads[] = {
   // name              cmd
-  {"scratchterm",      spcmd1},
-  {"scratchcalc",      spcmd2},
+  {"scratchterm",      spcmd1}, // 0
+  {"scratchemail",     spcmd2}, // 1
+  {"scratchcalc",      spcmd3}, // 2
+  {"scratchlf",        spcmd4}, // 3
+  {"scratchupd",       spcmd5}, // 4
+  {"scratchtmp",       spcmd6}, // 5
 };
 
 #include <X11/XF86keysym.h>
@@ -131,9 +145,10 @@ static Sp scratchpads[] = {
 static Key keys[] = {
 //modifier                key             function        argument
   // ------ system ------
-  { MODKEY,               XK_Return,      spawn,          {.v = termcmd} },
-  { MODKEY|ShiftMask,		  XK_Return,	    togglescratch,	{.ui = 0} },
-  { MODKEY,			          XK_apostrophe,	togglescratch,	{.ui = 1} },
+  { MODKEY,               XK_Return,      togglescratch,	{.ui = 0} },
+  { MODKEY|ShiftMask,     XK_Return,      spawn,          {.v = termcmd} },
+  { MODKEY,         		  XK_apostrophe,	togglescratch,	{.ui = 2} },
+  { MODKEY|ShiftMask,     XK_apostrophe,	togglescratch,	{.ui = 5} },
   { MODKEY|ShiftMask,     XK_space,       togglefloating, {0} },
   { MODKEY,               XK_space,       zoom,           {0} },
   { MODKEY,               XK_0,           view,           {.ui = ~0} },
@@ -141,7 +156,6 @@ static Key keys[] = {
 	{ MODKEY,               XK_s,           togglesticky,   {0} },
   { MODKEY,               XK_f,           togglefullscr,  {0} },
   { MODKEY,               XK_g,           togglegaps,     {0} },
-  { MODKEY|ShiftMask,     XK_g,           defaultgaps,    {0} },
   { MODKEY,               XK_l,           focusmon,       {.i = -1 } },
   { MODKEY,               XK_h,           focusmon,       {.i = +1 } },
   { MODKEY|ShiftMask,     XK_l,           tagmon,         {.i = -1 } },
@@ -151,12 +165,13 @@ static Key keys[] = {
 
   // ------ apps ------
   { MODKEY,               XK_d,           spawn,          SHCMD("dmenu_run") },
+  { MODKEY|ShiftMask,     XK_d,           spawn,          SHCMD("") },
+  { MODKEY,               XK_w,           spawn,          SHCMD("firefox -P accounts_misc") },
   { MODKEY|ShiftMask,     XK_w,           spawn,          SHCMD("dmenu_web-browsers") },
   { MODKEY|ShiftMask,     XK_e,           spawn,          SHCMD("dmenu_editconfs") },
-  { MODKEY,               XK_w,           spawn,          SHCMD("firefox -P accounts_misc") },
+  { MODKEY,               XK_e,           togglescratch,	{.ui = 1} },
   { MODKEY|ShiftMask,     XK_r,           spawn,          SHCMD("thunar") },
-  { MODKEY,               XK_r,           spawn,          SHCMD("$TERMINAL -e lf") },
-  { MODKEY,               XK_e,           spawn,          SHCMD("$TERMINAL -t 'Neomutt' -o window.dimensions.columns=120 -o window.dimensions.lines=32 -e neomutt") },
+  { MODKEY,               XK_r,           togglescratch,	{.ui = 3} },
 
   // ------ function keys ------
   { MODKEY,               XK_F1,          setlayout,      {.v = &layouts[0]} },
@@ -164,27 +179,30 @@ static Key keys[] = {
   { MODKEY,               XK_F3,          setlayout,      {.v = &layouts[2]} },
   { MODKEY,               XK_F4,          setlayout,      {.v = &layouts[3]} },
 
-  { MODKEY,               XK_F5,          spawn,          SHCMD("dmenu_wrapper") },
-  { MODKEY,               XK_F6,          spawn,          SHCMD("dmenu_mount-wrapper") },
-  { MODKEY,               XK_F7,          spawn,          SHCMD("dmenu_man") },
-  { MODKEY,               XK_F8,          spawn,          SHCMD("dmenu_kill-process") },
+  //{ MODKEY,               XK_F5,          spawn,          SHCMD("") },
+  //{ MODKEY,               XK_F6,          spawn,          SHCMD("") },
+  //{ MODKEY,               XK_F7,          spawn,          SHCMD("") },
+  //{ MODKEY,               XK_F8,          spawn,          SHCMD("") },
 
-  { MODKEY,               XK_F9,          spawn,          SHCMD("notify_toggle-dunst") },
-  { MODKEY,               XK_F10,         spawn,          SHCMD("notify_calendar") },
-  { MODKEY,		            XK_F11,		      spawn,		      SHCMD("notify_temp") },
-  { MODKEY,               XK_F12,         spawn,          SHCMD("$TERMINAL -e yay -Syu") },
+  { MODKEY,               XK_F9,          spawn,          SHCMD("dmenu_wrapper") },
+  { MODKEY,               XK_F10,         spawn,          SHCMD("notify_temp") },
+  { MODKEY,		            XK_F11,		      spawn,		      SHCMD("notify_toggle-dunst") },
+  { MODKEY,               XK_F12,         togglescratch,	{.ui = 4} },
 
   // ------ special keys ------
   { MODKEY,               XK_grave,       spawn,          SHCMD("dmenu_emoji") },
   { MODKEY,               XK_BackSpace,   spawn,          SHCMD("dmenu_sysact") },
-  { MODKEY|ShiftMask,     XK_BackSpace,   spawn,          SHCMD("slock") },
+  { MODKEY|ShiftMask,     XK_BackSpace,   spawn,          SHCMD("slock -m \"Locked at $(date '+%I:%M%P | %A %d %B %Y')\"") },
 
-  { MODKEY,               XK_Insert,      spawn,          SHCMD("notify-send \"📋 Clipboard Contents\" \"$(xclip -o -selection clipboard)\"") },
-  { MODKEY,               XK_Home,        spawn,          SHCMD("notify-send \"🏡 IP Address\" \"$(iplocal) $(sb_iplocate)\"") },
+  { MODKEY,               XK_Insert,      spawn,          SHCMD("notify-send -t 2000 \"📋 Clipboard Contents\" \"$(xclip -o -selection clipboard)\"") },
+  { MODKEY,               XK_Home,        spawn,          SHCMD("notify-send -t 2000 \"🏡 IP Address\" \"$(iplocal) $(sb_iplocate)\"") },
+  //{ MODKEY,               XK_Delete,      spawn,          SHCMD("") },
+  { MODKEY|ShiftMask,     XK_End,         quit,           {0} },
 
-  { MODKEY,               XK_Print,       spawn,          SHCMD("notify-send -t 800 \"📸 Took Screenshot\" \"$(maim ~/Pictures/sshots/sshot-$(date '+%y_%m_%d-%H:%M:%S').png)\"") },
   { MODKEY|ShiftMask,     XK_Print,       spawn,          SHCMD("dmenu_maim") },
-  { MODKEY,               XK_Scroll_Lock, spawn,          SHCMD("remaps & notify-send \"⌨️  Keyboard and Mouse remapping...\" \"Re-running defaults for any newly plugged-in peripherals.\"") },
+  { MODKEY,               XK_Print,       spawn,          SHCMD("notify-send -t 800 \"📸 Took Screenshot\" \"$(maim ~/Pictures/sshots/sshot-$(date '+%y_%m_%d-%H:%M:%S').png)\"") },
+  { MODKEY,               XK_Scroll_Lock, spawn,          SHCMD("remaps & notify-send -t 2000 \"⌨️  Keyboard and Mouse remapping...\" \"Re-running defaults for any newly plugged-in peripherals.\"") },
+  { MODKEY,               XK_Pause,       spawn,          SHCMD("autolock & notify-send -t 2000 \"🔐 Screensaver\" \"Running autolock script.\"") },
   { MODKEY,               XK_Menu,        spawn,          SHCMD("xmenu_default") },
 
   { 0,                    XF86XK_AudioMute,               spawn,    SHCMD("pamixer -t; notify_vol; pkill -RTMIN+3 dwmblocks") },
@@ -221,6 +239,7 @@ static Button buttons[] = {
 	{ ClkLtSymbol,          0,              Button3,        layoutmenu,     {0} },
 	{ ClkTagBar,            0,              Button1,        view,           {0} },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
+  { ClkClientWin,         MODKEY,         Button2,        appmenu,        {0} }, 
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
   { ClkWinTitle,          0,              Button3,        appmenu,        {0} }, 
 	{ ClkStatusText,        0,              Button1,        sigdwmblocks,   {.i = 1} },
